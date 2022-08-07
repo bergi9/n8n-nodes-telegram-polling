@@ -1,18 +1,14 @@
-# n8n-nodes-starter
+# n8n-nodes-telegram-polling
 
-This template repository contains example nodes to help you get started building your own custom integrations for [n8n](n8n.io).
+An n8n trigger node for telegram that uses the [getUpdates API](https://core.telegram.org/bots/api#getupdates) to receive updates with long polling.
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+The default long polling timeout is 60 seconds.
 
-## Using this starter
-
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository
-2. Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/).
-3. Open the project in your editor.
-4. Browse the examples in `/nodes`. Modify the examples, or replace them with your own nodes.
-5. Update the `package.json` to match your details.
-6. Run `npm run lint` to check for errors or `npm run lintfix` to automatically fix errors when possible.
-7. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
+#### Motivation:
+I'm sitting behind a CGNAT for IPv4 but I have an IPv6 Prefix.
+The Telegram webhook method does not support IPv6 yet.
+So the only solution without renting an IPv4 public facing server is to use the long polling method.
+Another alternatives would be to use the tunnel/VPN.
 
 ## License
 

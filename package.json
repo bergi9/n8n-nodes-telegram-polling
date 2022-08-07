@@ -1,19 +1,21 @@
 {
-  "name": "n8n-nodes-<...>",
+  "name": "n8n-nodes-telegram-polling",
   "version": "0.1.0",
-  "description": "",
+  "description": "n8n-node-trigger for telegram based on polling api",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n-community-node-package",
+    "n8n",
+    "telegram"
   ],
   "license": "MIT",
   "homepage": "",
   "author": {
-    "name": "",
+    "name": "bergi9",
     "email": ""
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/bergi9/n8n-nodes-telegram-polling.git"
   },
   "main": "index.js",
   "scripts": {
@@ -29,13 +31,8 @@
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js",
-      "dist/credentials/HttpBinApi.credentials.js"
-    ],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js"
+      "dist/nodes/TelegramPollingTrigger.node.js"
     ]
   },
   "devDependencies": {
@@ -48,6 +45,7 @@
     "n8n-workflow": "^0.107.0",
     "prettier": "^2.7.1",
     "tslint": "^6.1.2",
+    "typegram": "^3.10.0",
     "typescript": "~4.6.0"
   }
 }
