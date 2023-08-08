@@ -158,35 +158,54 @@ export class TelegramPollingTrigger implements INodeType {
 			let offset = 0;
 
 			while (isPolling) {
-				const response = await this.helpers.request({
-					method: 'post',
-					uri: `https://api.telegram.org/bot${credentials.accessToken}/getUpdates`,
-					body: {
-						offset,
-						limit,
-						timeout,
-						allowed_updates: allowedUpdates,
-					},
-					json: true,
-					timeout: 0,
-					signal: abortController.signal,
-				}) as ApiResponse<Update[]>;
+				// try-catch to handle 409s that on >v1.0 bring down the entire instance
+				try {
+					const response = await this.helpers.request({
+						method: 'post',
+						uri: `https://api.telegram.org/bot${credentials.accessToken}/getUpdates`,
+						body: {
+							offset,
+							limit,
+							timeout,
+							allowed_updates: allowedUpdates,
+						},
+						json: true,
+						timeout: 0,
+						// dows this work? maybe it isn't passed to Axtios, there's a trnslation step made by N8N in the middle
+						signal: abortController.signal,
+					}) as ApiResponse<Update[]>;
 
-				if (!response.ok || !response.result) {
-					continue;
-				}
-
-				let updates = response.result;
-				if (updates.length > 0) {
-					offset = updates[updates.length - 1].update_id + 1;
-
-					if (allowedUpdates.length > 0) {
-						updates = updates.filter(update => Object.keys(update).some(x => allowedUpdates.includes(x)));
+					if (!response.ok || !response.result) {
+						continue;
 					}
 
-					this.emit([
-						updates.map(update => ({json: update as unknown as IDataObject})),
-					]);
+					let updates = response.result;
+					if (updates.length > 0) {
+						offset = updates[updates.length - 1].update_id + 1;
+
+						if (allowedUpdates.length > 0) {
+							updates = updates.filter(update => Object.keys(update).some(x => allowedUpdates.includes(x)));
+						}
+
+						this.emit([
+							updates.map(update => ({json: update as unknown as IDataObject})),
+						]);
+					}
+				} catch(error) {
+					// 409s sometimes happen when saving changes, b/c that disables+reenables the WF
+					// In N8N >1.0.0 or if using execution_mode=main, that brings down the entire N8N instance
+					// so we need to ignore those errors
+					// To prevent other cases of 409s getting eaten, we ONLY ignore 409s where isPolling === false
+					// This means that closeFunction() has been invoked and we're in the middle of cleaning up and exiting
+					if(error.response?.status === 409 && !isPolling) {
+
+						console.debug("error 409, ignoring because execution is on final cleanup...");
+						continue;
+					}
+
+					// any other errors must be thrown as before, we don't want to
+					// gobble them up
+					throw error;
 				}
 			}
 		};
